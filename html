@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PredictaLat — Inteligencia Colectiva para Decisiones Críticas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --midnight: #0A0F1E;
+    --navy: #0D2F6B;
+    --navy-mid: #112B5E;
+    --amber: #F5A623;
+    --amber-dim: rgba(245,166,35,0.15);
+    --amber-border: rgba(245,166,35,0.3);
+    --white: #F8F9FC;
+    --gray: #8B95A8;
+    --gray-dim: rgba(139,149,168,0.12);
+    --green-signal: #2ECC71;
+    --red-signal: #E74C3C;
+    --surface: #0F1728;
+    --card: #131D33;
+    --card-border: rgba(255,255,255,0.07);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--midnight);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+
+  .nav-logo span { color: var(--amber); }
+
+  .nav-links {
+    display: flex; gap: 32px; list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--amber);
+    color: var(--midnight) !important;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 600 !important;
+    font-size: 0.875rem;
+    transition: opacity 0.2s !important;
+  }
+
+  .nav-cta:hover { opacity: 0.88; color: var(--midnight) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 70% 40%, rgba(13,47,107,0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    max-width: 1200px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-border);
+    color: var(--amber);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  h1 .accent { color: var(--amber); }
+
+  .hero-sub {
+    color: var(--gray);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 480px;
+  }
+
+  .hero-actions {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--amber);
+    color: var(--midnight);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .btn-ghost {
+    color: var(--gray);
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s;
+  }
+
+  .btn-ghost:hover { color: var(--white); }
+
+  /* LIVE MARKET WIDGET */
+  .market-widget {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .market-widget::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--amber), transparent);
+  }
+
+  .widget-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .widget-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.7rem;
+    color: var(--green-signal);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green-signal);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  .market-question {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 20px;
+    line-height: 1.5;
+    min-height: 48px;
+  }
+
+  .probability-display {
+    display: flex; align-items: flex-end; gap: 12px; margin-bottom: 16px;
+  }
+
+  .prob-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--amber);
+    transition: all 0.5s ease;
+  }
+
+  .prob-label {
+    font-size: 0.8rem;
+    color: var(--gray);
+    padding-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .prob-bar-bg {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .prob-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), #FFD07F);
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .market-meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--gray);
+    border-top: 1px solid var(--card-border);
+    padding-top: 16px;
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 3px; }
+  .meta-value { color: var(--white); font-weight: 600; font-size: 0.85rem; }
+
+  .participants-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+
+  .participant-dots {
+    display: flex;
+  }
+
+  .pdot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--card);
+    margin-left: -6px;
+    font-size: 0.55rem;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+
+  .pdot:first-child { margin-left: 0; }
+
+  .participants-text { font-size: 0.78rem; color: var(--gray); }
+  .participants-text strong { color: var(--white); }
+
+  /* SECTION SHARED */
+  section { padding: 100px 40px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    color: var(--gray);
+    font-size: 1rem;
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* PROBLEM */
+  .problem-section { background: var(--surface); }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .committee-sim {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .committee-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .committee-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .committee-row:last-child { border-bottom: none; }
+
+  .person-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .person-info { flex: 1; }
+  .person-name { font-size: 0.82rem; font-weight: 600; }
+  .person-role { font-size: 0.72rem; color: var(--gray); }
+
+  .person-opinion {
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .opinion-yes { background: rgba(46,204,113,0.12); color: #2ECC71; }
+  .opinion-no { background: rgba(231,76,60,0.12); color: #E74C3C; }
+  .opinion-maybe { background: rgba(139,149,168,0.15); color: var(--gray); }
+  .opinion-boss { background: rgba(245,166,35,0.15); color: var(--amber); }
+
+  .committee-result {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(231,76,60,0.06);
+    border: 1px solid rgba(231,76,60,0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--gray);
+  }
+
+  .committee-result strong { color: #E74C3C; }
+
+  .problem-points { display: flex; flex-direction: column; gap: 24px; }
+
+  .problem-point {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+
+  .point-icon {
+    width: 40px; height: 40px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .point-text h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .point-text p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
+
+  /* HOW IT WORKS */
+  .how-section { background: var(--midnight); }
+
+  .steps-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    position: relative;
+  }
+
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    padding: 32px 24px;
+    position: relative;
+  }
+
+  .step-card:first-child { border-radius: 12px 0 0 12px; }
+  .step-card:last-child { border-radius: 0 12px 12px 0; }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: rgba(245,166,35,0.15);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .step-icon { font-size: 1.5rem; margin-bottom: 12px; }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .step-desc { font-size: 0.83rem; color: var(--gray); line-height: 1.65; }
+
+  /* USE CASES */
+  .cases-section { background: var(--surface); }
+
+  .cases-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin: 40px 0 32px;
+  }
+
+  .tab-btn {
+    background: var(--gray-dim);
+    border: 1px solid var(--card-border);
+    color: var(--gray);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--amber-dim);
+    border-color: var(--amber-border);
+    color: var(--amber);
+  }
+
+  .cases-content { display: none; }
+  .cases-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  .case-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px;
+    transition: border-color 0.2s;
+  }
+
+  .case-card:hover { border-color: var(--amber-border); }
+
+  .case-sector {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+
+  .case-question {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .case-value {
+    font-size: 0.82rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .case-signal {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(245,166,35,0.07);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: var(--amber);
+    font-weight: 500;
+  }
+
+  /* PRICING */
+  .pricing-section { background: var(--midnight); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    position: relative;
+  }
+
+  .price-card.featured {
+    border-color: var(--amber-border);
+    background: linear-gradient(160deg, var(--card), rgba(13,47,107,0.4));
+  }
+
+  .price-card.featured::before {
+    content: 'Más popular';
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--amber);
+    color: var(--midnight);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .price-tier { font-size: 0.75rem; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .price-name { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 20px; }
+
+  .price-amount {
+    margin-bottom: 8px;
+  }
+
+  .price-currency { font-size: 1rem; color: var(--amber); vertical-align: top; line-height: 2; }
+  .price-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .price-period { font-size: 0.82rem; color: var(--gray); margin-bottom: 28px; }
+
+  .price-features { list-style: none; margin-bottom: 32px; display: flex; flex-direction: column; gap: 10px; }
+
+  .price-features li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.85rem; color: var(--gray);
+  }
+
+  .price-features li::before {
+    content: '✓';
+    color: var(--amber);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .price-btn {
+    display: block;
+    text-align: center;
+    padding: 13px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .price-btn-outline {
+    border: 1px solid var(--card-border);
+    color: var(--white);
+  }
+
+  .price-btn-outline:hover { border-color: var(--amber-border); color: var(--amber); }
+
+  .price-btn-filled {
+    background: var(--amber);
+    color: var(--midnight);
+  }
+
+  .price-btn-filled:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* TESTIMONIALS / SIGNAL */
+  .signal-section { background: var(--surface); }
+
+  .signal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .signal-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .signal-quote {
+    font-size: 0.9rem;
+    color: var(--white);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .signal-person {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .signal-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .signal-name { font-size: 0.85rem; font-weight: 600; }
+  .signal-role { font-size: 0.75rem; color: var(--gray); }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--navy);
+    padding: 48px 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .stats-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+
+  .stat-item { text-align: center; }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label { font-size: 0.82rem; color: var(--gray); line-height: 1.5; }
+
+  /* CTA */
+  .cta-section {
+    background: var(--midnight);
+    text-align: center;
+    padding: 120px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(13,47,107,0.5) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .cta-section p {
+    color: var(--gray);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .cta-actions {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--surface);
+    padding: 40px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .footer-logo span { color: var(--amber); }
+  .footer-copy { font-size: 0.78rem; color: var(--gray); }
+
+  .footer-links {
+    display: flex; gap: 24px; list-style: none;
+  }
+
+  .footer-links a { font-size: 0.78rem; color: var(--gray); text-decoration: none; }
+  .footer-links a:hover { color: var(--white); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 48px;
+    width: 100%; max-width: 520px;
+    position: relative;
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--amber), transparent);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .modal-close {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none;
+    color: var(--gray); cursor: pointer; font-size: 1.2rem;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--white); }
+
+  .modal h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .modal-sub { color: var(--gray); font-size: 0.88rem; margin-bottom: 32px; }
+
+  .form-group { margin-bottom: 18px; }
+
+  .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--gray);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--midnight);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--amber-border);
+  }
+
+  .form-group select option { background: var(--card); }
+
+  .form-submit {
+    width: 100%;
+    background: var(--amber);
+    color: var(--midnight);
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+
+  .form-submit:hover { opacity: 0.88; }
+
+  .form-note { font-size: 0.75rem; color: var(--gray); text-align: center; margin-top: 14px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 70px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .steps-row { grid-template-columns: 1fr 1fr; }
+    .step-card:first-child { border-radius: 12px 0 0 0; }
+    .step-card:last-child { border-radius: 0 0 12px 0; }
+    .cases-content.active { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .signal-grid { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .modal { padding: 32px 24px; margin: 20px; }
+    .stats-bar { padding: 48px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Predicta<span>Lat</span></div>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Cómo funciona</a></li>
+    <li><a href="#casos">Casos de uso</a></li>
+    <li><a href="#precios">Precios</a></li>
+    <li><a href="#" class="nav-cta" onclick="openModal()">Solicitar piloto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="hero-eyebrow">Sistema de Alerta Temprana Organizacional</div>
+      <h1>Su equipo ya sabe lo que va a pasar.<br><span class="accent">Usted todavía no.</span></h1>
+      <p class="hero-sub">PredictaLat agrega el conocimiento disperso de su organización en probabilidades accionables — antes de que los reportes oficiales lleguen, antes de que el comité se reúna, antes de que sea tarde.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="openModal()">Agendar piloto gratuito</a>
+        <a href="#como-funciona" class="btn-ghost">Ver cómo funciona →</a>
+      </div>
+    </div>
+
+    <!-- Live Market Widget -->
+    <div class="market-widget">
+      <div class="widget-header">
+        <span class="widget-title">Mercado activo — Demo</span>
+        <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
+      </div>
+
+      <div class="market-question" id="widget-question">
+        ¿El proyecto Edificio Centro superará el presupuesto aprobado este trimestre?
+      </div>
+
+      <div class="probability-display">
+        <div class="prob-number" id="widget-prob">72%</div>
+        <div class="prob-label">probabilidad<br>según el equipo</div>
+      </div>
+
+      <div class="prob-bar-bg">
+        <div class="prob-bar-fill" id="widget-bar" style="width: 72%"></div>
+      </div>
+
+      <div class="participants-row">
+        <div class="participant-dots">
+          <div class="pdot" style="background:#2D4A7A">JR</div>
+          <div class="pdot" style="background:#1A3A5C">MC</div>
+          <div class="pdot" style="background:#3D5A8A">AP</div>
+          <div class="pdot" style="background:#0D2F6B">LG</div>
+          <div class="pdot" style="background:#1E3F70">+9</div>
+        </div>
+        <span class="participants-text"><strong>13 analistas</strong> participaron hoy</span>
+      </div>
+
+      <div class="market-meta">
+        <div class="meta-item">
+          <span>Cierre</span>
+          <span class="meta-value">30 sep</span>
+        </div>
+        <div class="meta-item">
+          <span>Señal vs. reporte</span>
+          <span class="meta-value" style="color: var(--amber)">+18 días antes</span>
+        </div>
+        <div class="meta-item">
+          <span>Calibración equipo</span>
+          <span class="meta-value" style="color: var(--green-signal)">84%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">18+</div>
+      <div class="stat-label">días de anticipación promedio<br>vs. reportes tradicionales</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">84%</div>
+      <div class="stat-label">precisión calibrada<br>en pilotos documentados</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">90 días</div>
+      <div class="stat-label">para medir ROI<br>del primer piloto</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0</div>
+      <div class="stat-label">dinero real entre participantes<br>sin regulación de apuestas</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem-section">
+  <div class="container">
+    <div class="section-eyebrow">El problema</div>
+    <h2 class="section-title">Las decisiones más costosas<br>se toman con la información equivocada</h2>
+    <p class="section-sub">No porque no exista la información. Sino porque está atrapada en los niveles medios de su organización y nunca llega al comité directivo.</p>
+
+    <div class="problem-grid">
+      <div class="committee-sim">
+        <div class="committee-title">Reunión de comité directivo — hoy</div>
+        <div class="committee-row">
+          <div class="person-avatar" style="background:#1A3A5C">VP</div>
+          <div class="person-info">
+            <div class="person-name">VP Comercial</div>
+            <div class="person-role">Bogotá</div>
+          </div>
+          <span class="person-opinion opinion-yes">Sí cumplimos</span>
+        </div>
+        <div class="committee-row">
+          <div class="person-avatar" style="background:#2D4A7A">GR</div>
+          <div class="person-info">
+            <div class="person-name">Gerente Regional</div>
+            <div class="person-role">Medellín</div>
+          </div>
+          <span class="person-opinion opinion-maybe">Tal vez</span>
+        </div>
+        <div class="committee-row">
+          <div class="person-avatar" style="background:#3D5A8A">AN</div>
+          <div class="person-info">
+            <div class="person-name">Analista Senior</div>
+            <div class="person-role">Cali (sabe la verdad)</div>
+          </div>
+          <span class="person-opinion opinion-no" style="opacity:0.4">No alcanzamos</span>
+        </div>
+        <div class="committee-row">
+          <div class="person-avatar" style="background:#F5A623; color:#0A0F1E">CE</div>
+          <div class="person-info">
+            <div class="person-name">CEO</div>
+            <div class="person-role">Decisión final</div>
+          </div>
+          <span class="person-opinion opinion-boss">Seguimos adelante</span>
+        </div>
+        <div class="committee-result">
+          <strong>Resultado 60 días después:</strong> No se cumplió la meta. El analista lo sabía. Nadie le preguntó.
+        </div>
+      </div>
+
+      <div class="problem-points">
+        <div class="problem-point">
+          <div class="point-icon">🔇</div>
+          <div class="point-text">
+            <h4>El conocimiento valioso no sube</h4>
+            <p>El vendedor, el técnico y el gerente regional tienen señales tempranas que los comités nunca ven. La jerarquía filtra la verdad antes de que llegue arriba.</p>
+          </div>
+        </div>
+        <div class="problem-point">
+          <div class="point-icon">⏰</div>
+          <div class="point-text">
+            <h4>Los reportes llegan tarde</h4>
+            <p>Cuando el reporte oficial confirma el problema, ya es demasiado tarde para actuar. Las decisiones correctivas cuestan 3x más cuando se toman reactivamente.</p>
+          </div>
+        </div>
+        <div class="problem-point">
+          <div class="point-icon">🎯</div>
+          <div class="point-text">
+            <h4>Los forecasts son optimistas por diseño</h4>
+            <p>Nadie quiere dar malas noticias al jefe. Los números se ajustan hacia arriba en cada nivel de la cadena hasta llegar al directivo.</p>
+          </div>
+        </div>
+        <div class="problem-point">
+          <div class="point-icon">📊</div>
+          <div class="point-text">
+            <h4>Sin métrica de calidad del juicio</h4>
+            <p>No hay forma de saber quién en su equipo tiene mejor calibración de riesgo. Los que aciertan y los que fallan reciben el mismo tratamiento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="como-funciona">
+  <div class="container">
+    <div class="section-eyebrow">Cómo funciona</div>
+    <h2 class="section-title">Del conocimiento disperso<br>a la señal ejecutiva</h2>
+    <p class="section-sub">PredictaLat convierte lo que su equipo ya sabe en probabilidades que llegan al directivo antes que el reporte oficial.</p>
+
+    <div class="steps-row">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🎯</div>
+        <div class="step-title">Definimos las preguntas correctas</div>
+        <div class="step-desc">Juntos identificamos las 3 decisiones críticas del trimestre donde una probabilidad colectiva cambia el resultado. No encuestas genéricas — preguntas de alto impacto económico.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🪙</div>
+        <div class="step-title">Su equipo participa con tokens internos</div>
+        <div class="step-desc">Cada participante recibe tokens ficticios y los asigna según su convicción. Sin dinero real. Sin regulación especial. El sistema registra quién sabe más.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">📡</div>
+        <div class="step-title">El mercado agrega la inteligencia</div>
+        <div class="step-desc">El precio del contrato es la probabilidad colectiva del grupo — sin sesgo de jerarquía. Lo que sabe el analista junior vale igual que lo que sabe el gerente.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon">📋</div>
+        <div class="step-title">Recibe el Reporte de Alerta Temprana</div>
+        <div class="step-desc">Un informe ejecutivo mensual con probabilidades, señales de alerta, divergencias internas y calibración del equipo. Listo para el comité directivo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="cases-section" id="casos">
+  <div class="container">
+    <div class="section-eyebrow">Casos de uso</div>
+    <h2 class="section-title">Preguntas que mueven millones.<br>Por sector.</h2>
+    <p class="section-sub">El valor no está en la tecnología — está en hacer la pregunta correcta antes de que sea demasiado tarde.</p>
+
+    <div class="cases-tabs">
+      <button class="tab-btn active" onclick="showCase('retail')">🛒 Retail</button>
+      <button class="tab-btn" onclick="showCase('construccion')">🏗️ Construcción</button>
+      <button class="tab-btn" onclick="showCase('financiero')">🏦 Financiero</button>
+      <button class="tab-btn" onclick="showCase('salud')">🏥 Salud / Farma</button>
+      <button class="tab-btn" onclick="showCase('agro')">🌱 Agroindustria</button>
+    </div>
+
+    <div class="cases-content active" id="case-retail">
+      <div class="case-card">
+        <div class="case-sector">Retail / Consumo masivo</div>
+        <div class="case-question">¿Esta categoría cumplirá la meta de ventas del trimestre?</div>
+        <div class="case-value">Los vendedores en campo saben 6 semanas antes si el número es alcanzable. Los reportes lo confirman cuando ya no hay margen de maniobra.</div>
+        <div class="case-signal">⚡ Señal promedio: 23 días antes del cierre oficial</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Retail / Consumo masivo</div>
+        <div class="case-question">¿El proveedor principal entregará a tiempo para temporada de fin de año?</div>
+        <div class="case-value">El equipo de logística tiene señales de retraso semanas antes. Sin un canal formal, esa información no llega a compras ni a dirección.</div>
+        <div class="case-signal">⚡ Impacto: decisión de proveedor alternativo con 30 días de ventaja</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Retail / Consumo masivo</div>
+        <div class="case-question">¿El nuevo producto alcanzará el punto de equilibrio en los primeros 6 meses?</div>
+        <div class="case-value">Marketing dice sí. El equipo de ventas regionales duda. PredictaLat mide esa divergencia antes del lanzamiento.</div>
+        <div class="case-signal">⚡ Valor: ajuste de inversión en lanzamiento con datos internos</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Retail / Consumo masivo</div>
+        <div class="case-question">¿El inventario de temporada navideña será suficiente o habrá quiebres de stock?</div>
+        <div class="case-value">El conocimiento de tendencia está en los supervisores de tienda. Nunca llega sistematizado a la decisión de compra con suficiente anticipación.</div>
+        <div class="case-signal">⚡ Impacto: optimización de inventario con 8 semanas de anticipación</div>
+      </div>
+    </div>
+
+    <div class="cases-content" id="case-construccion">
+      <div class="case-card">
+        <div class="case-sector">Construcción / Infraestructura</div>
+        <div class="case-question">¿Este proyecto entregará el hito principal en la fecha pactada con el cliente?</div>
+        <div class="case-value">El 90% de los proyectos en LATAM superan plazo o presupuesto. Los ingenieros en campo saben semanas antes — pero el reporte oficial dice que todo está bien.</div>
+        <div class="case-signal">⚡ Señal promedio: 4 semanas antes del incumplimiento oficial</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Construcción / Infraestructura</div>
+        <div class="case-question">¿El presupuesto aprobado será suficiente con los materiales actuales?</div>
+        <div class="case-value">Las variaciones de precio de cemento, acero y mano de obra las detecta primero el residente de obra, no el director financiero.</div>
+        <div class="case-signal">⚡ Impacto: renegociación de contrato con cliente antes del sobrecosto</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Construcción / Infraestructura</div>
+        <div class="case-question">¿El subcontratista de estructura cumplirá con el cronograma acordado?</div>
+        <div class="case-value">La reputación del subcontratista la conoce el equipo técnico, no el área de contratación. Esa información cambia la decisión de selección.</div>
+        <div class="case-signal">⚡ Valor: selección de subcontratistas con inteligencia interna real</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Construcción / Infraestructura</div>
+        <div class="case-question">¿Este proyecto obtendrá las licencias ambientales antes del Q2?</div>
+        <div class="case-value">El equipo jurídico y el de gestión social tienen señales tempranas sobre la viabilidad de los permisos que no llegan al cronograma oficial.</div>
+        <div class="case-signal">⚡ Impacto: replaneación de inversión antes del bloqueo regulatorio</div>
+      </div>
+    </div>
+
+    <div class="cases-content" id="case-financiero">
+      <div class="case-card">
+        <div class="case-sector">Sector financiero</div>
+        <div class="case-question">¿El Banrep subirá, bajará o mantendrá tasas en la próxima reunión?</div>
+        <div class="case-value">El equipo de tesorería, los analistas de riesgo y el área de crédito leen señales distintas. La probabilidad colectiva es más robusta que la opinión del economista estrella.</div>
+        <div class="case-signal">⚡ Impacto: decisiones de cobertura y pricing con anticipación</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Sector financiero</div>
+        <div class="case-question">¿La cartera vencida de este segmento superará el umbral de alerta este trimestre?</div>
+        <div class="case-value">Los asesores comerciales detectan señales de deterioro de clientes antes de que aparezca en el reporte de riesgo. PredictaLat captura esa inteligencia.</div>
+        <div class="case-signal">⚡ Señal: 5-7 semanas antes del reporte de mora oficial</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Sector financiero</div>
+        <div class="case-question">¿La reforma pensional aprobada afectará significativamente los AUM de la AFP este año?</div>
+        <div class="case-value">Los equipos legales, actuariales y comerciales tienen lecturas distintas del mismo texto regulatorio. Agregar esa diversidad mejora la decisión estratégica.</div>
+        <div class="case-signal">⚡ Valor: escenarios de planeación más robustos ante cambio regulatorio</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Sector financiero</div>
+        <div class="case-question">¿La TRM superará los $4.500 antes de cierre del año fiscal?</div>
+        <div class="case-value">Los traders, los analistas macro y el área de riesgo de mercado tienen visiones distintas. El precio de mercado interno agrega toda esa información sin que nadie tenga que "ganar" el debate.</div>
+        <div class="case-signal">⚡ Impacto: decisiones de cobertura cambiaria con 60 días de ventaja</div>
+      </div>
+    </div>
+
+    <div class="cases-content" id="case-salud">
+      <div class="case-card">
+        <div class="case-sector">Salud / Farmacéutica</div>
+        <div class="case-question">¿El producto recibirá aprobación del INVIMA antes del Q2 del próximo año?</div>
+        <div class="case-value">El equipo regulatorio, los médicos investigadores y el área legal tienen señales distintas del proceso. Su probabilidad colectiva calibra el plan de lanzamiento.</div>
+        <div class="case-signal">⚡ Impacto: inversión en lanzamiento sincronizada con aprobación real</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Salud / Farmacéutica</div>
+        <div class="case-question">¿Los médicos de este territorio adoptarán el nuevo protocolo en los primeros 3 meses?</div>
+        <div class="case-value">Los visitadores médicos conocen la disposición real de los prescriptores mucho antes de que aparezca en los datos de ventas.</div>
+        <div class="case-signal">⚡ Señal: ajuste de estrategia de visita con 6 semanas de anticipación</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Salud / Farmacéutica</div>
+        <div class="case-question">¿Este ensayo clínico completará el reclutamiento de pacientes en la fecha planificada?</div>
+        <div class="case-value">Los coordinadores de sitio y los investigadores saben semanas antes si el reclutamiento va bien. Esa señal nunca llega sistematizada al sponsor a tiempo.</div>
+        <div class="case-signal">⚡ Impacto: activación temprana de sitios adicionales si hay rezago</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Salud / Farmacéutica</div>
+        <div class="case-question">¿La EPS incluirá este medicamento en el PBS en la próxima revisión?</div>
+        <div class="case-value">El equipo de asuntos de mercado y el área médica leen señales del sistema de salud que el área comercial no ve. Agregar esa visión mejora la estrategia de acceso.</div>
+        <div class="case-signal">⚡ Valor: lobby y gestión de acceso con anticipación estratégica</div>
+      </div>
+    </div>
+
+    <div class="cases-content" id="case-agro">
+      <div class="case-card">
+        <div class="case-sector">Agroindustria</div>
+        <div class="case-question">¿El precio interno del café superará $X en la cosecha de octubre?</div>
+        <div class="case-value">Los técnicos de campo, los compradores de café y el área de exportaciones ven señales distintas sobre producción, calidad y demanda. La probabilidad colectiva calibra la estrategia de venta.</div>
+        <div class="case-signal">⚡ Impacto: decisiones de forward con 8 semanas de anticipación</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Agroindustria</div>
+        <div class="case-question">¿El fenómeno de El Niño reducirá la producción de palma más del 15% este año?</div>
+        <div class="case-value">Los agronomistas, los gestores de riesgo climático y los directores de planta tienen lecturas distintas del mismo fenómeno. PredictaLat las agrega antes de que el impacto sea visible.</div>
+        <div class="case-signal">⚡ Señal: 10-12 semanas antes de confirmación oficial de pérdida</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Agroindustria</div>
+        <div class="case-question">¿Los caficultores de este departamento adoptarán la variedad resistente a la roya este ciclo?</div>
+        <div class="case-value">Los extensionistas y técnicos de campo conocen la disposición real de los agricultores. Esa información cambia los planes de inversión en asistencia técnica.</div>
+        <div class="case-signal">⚡ Valor: optimización de recursos de asistencia técnica</div>
+      </div>
+      <div class="case-card">
+        <div class="case-sector">Agroindustria</div>
+        <div class="case-question">¿El corredor logístico de exportación tendrá capacidad suficiente en temporada alta?</div>
+        <div class="case-value">Los coordinadores de logística y los operadores portuarios detectan señales de congestión antes de que el problema aparezca en los datos operativos.</div>
+        <div class="case-signal">⚡ Impacto: contratación anticipada de capacidad logística alternativa</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="precios">
+  <div class="container">
+    <div class="section-eyebrow">Modelo comercial</div>
+    <h2 class="section-title">Empiece a medir. Pague cuando vea el valor.</h2>
+    <p class="section-sub">Sin instalación de software. Sin integración de sistemas. El piloto corre en 2 semanas y los primeros resultados llegan en 30 días.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Exploración</div>
+        <div class="price-name">Piloto</div>
+        <div class="price-amount">
+          <span class="price-currency">USD </span><span class="price-number">3.000</span>
+        </div>
+        <div class="price-period">pago único · 8 semanas</div>
+        <ul class="price-features">
+          <li>Diseño de 3 preguntas estratégicas de alto impacto</li>
+          <li>Hasta 30 participantes internos</li>
+          <li>2 mercados activos simultáneos</li>
+          <li>Reporte ejecutivo de cierre</li>
+          <li>Sesión de interpretación de resultados</li>
+          <li>Acompañamiento semanal de participación</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-outline" onclick="openModal()">Solicitar piloto</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-tier">Operación continua</div>
+        <div class="price-name">Estándar</div>
+        <div class="price-amount">
+          <span class="price-currency">USD </span><span class="price-number">1.800</span>
+        </div>
+        <div class="price-period">por mes · desde el mes 3</div>
+        <ul class="price-features">
+          <li>Hasta 5 mercados activos por mes</li>
+          <li>Hasta 60 participantes</li>
+          <li>Reporte de Inteligencia Colectiva mensual</li>
+          <li>Dashboard ejecutivo en tiempo real</li>
+          <li>Scoring de calibración individual del equipo</li>
+          <li>Acompañamiento de participación incluido</li>
+          <li>Revisión trimestral de preguntas estratégicas</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-filled" onclick="openModal()">Agendar demo</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Inteligencia institucional</div>
+        <div class="price-name">Enterprise</div>
+        <div class="price-amount">
+          <span class="price-currency">USD </span><span class="price-number">3.000</span>
+        </div>
+        <div class="price-period">por mes · volumen a convenir</div>
+        <ul class="price-features">
+          <li>Mercados ilimitados</li>
+          <li>Participantes ilimitados</li>
+          <li>Múltiples unidades de negocio o filiales</li>
+          <li>API de datos para integración interna</li>
+          <li>Reporte ejecutivo semanal premium</li>
+          <li>Consultor dedicado de inteligencia organizacional</li>
+          <li>Benchmarking sectorial LATAM</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-outline" onclick="openModal()">Hablar con el equipo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNAL / SOCIAL PROOF -->
+<section class="signal-section">
+  <div class="container">
+    <div class="section-eyebrow">Por qué funciona</div>
+    <h2 class="section-title">El conocimiento ya existe en su organización.<br>Solo necesita un canal.</h2>
+
+    <div class="signal-grid">
+      <div class="signal-card">
+        <div class="signal-quote">"Los mercados de predicción internos de HP predijeron las fechas de entrega de impresoras con mayor precisión que los reportes oficiales de los gerentes de proyecto durante 3 años consecutivos."</div>
+        <div class="signal-person">
+          <div class="signal-avatar" style="background:#1A3A5C">HP</div>
+          <div>
+            <div class="signal-name">Hewlett-Packard</div>
+            <div class="signal-role">Caso documentado · Journal of Prediction Markets</div>
+          </div>
+        </div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-quote">"Google usó mercados de predicción internos durante años para forecastear timelines de producto y resultados de negocio. El management los usaba para calibrar expectativas antes de las reuniones de dirección."</div>
+        <div class="signal-person">
+          <div class="signal-avatar" style="background:#0D2F6B">G</div>
+          <div>
+            <div class="signal-name">Google</div>
+            <div class="signal-role">Caso interno documentado · Bo Cowgill, Columbia Business School</div>
+          </div>
+        </div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-quote">"La mejor herramienta de forecasting de una empresa puede no ser una firma consultora costosa ni un modelo de IA sofisticado, sino el conocimiento colectivo de sus propios empleados, correctamente agregado."</div>
+        <div class="signal-person">
+          <div class="signal-avatar" style="background:#2D4A7A">PL</div>
+          <div>
+            <div class="signal-name">PredictaLat Research</div>
+            <div class="signal-role">Basado en literatura de inteligencia colectiva (Surowiecki, 2004)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="section-eyebrow" style="display:inline-block; margin-bottom:24px;">Piloto en 2 semanas</div>
+    <h2>¿Cuánto le cuesta <span style="color:var(--amber)">no saber</span><br>lo que su equipo ya sabe?</h2>
+    <p>Empiece con un piloto de 8 semanas. Sin software que instalar. Sin cambios en sus sistemas. Los primeros resultados llegan en 30 días.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-primary" onclick="openModal()">Agendar piloto gratuito →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Predicta<span>Lat</span></div>
+    <ul class="footer-links">
+      <li><a href="#como-funciona">Cómo funciona</a></li>
+      <li><a href="#casos">Casos de uso</a></li>
+      <li><a href="#precios">Precios</a></li>
+    </ul>
+    <div class="footer-copy">© 2025 PredictaLat · Inteligencia colectiva para LATAM</div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Agendar piloto</h3>
+    <p class="modal-sub">Cuéntenos su organización. Le respondemos en menos de 24 horas para agendar una llamada de 30 minutos.</p>
+
+    <div class="form-group">
+      <label>Nombre completo</label>
+      <input type="text" placeholder="Juan Pérez">
+    </div>
+    <div class="form-group">
+      <label>Empresa</label>
+      <input type="text" placeholder="Nombre de su organización">
+    </div>
+    <div class="form-group">
+      <label>Cargo</label>
+      <input type="text" placeholder="Director de Riesgo, Gerente de Estrategia...">
+    </div>
+    <div class="form-group">
+      <label>Sector</label>
+      <select>
+        <option value="">Seleccione su sector</option>
+        <option>Retail / Consumo masivo</option>
+        <option>Construcción / Infraestructura</option>
+        <option>Sector financiero</option>
+        <option>Salud / Farmacéutica</option>
+        <option>Agroindustria</option>
+        <option>Otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Correo corporativo</label>
+      <input type="email" placeholder="juan@empresa.com">
+    </div>
+    <button class="form-submit">Solicitar piloto gratuito</button>
+    <p class="form-note">Sin compromiso. Primera llamada de diagnóstico sin costo.</p>
+  </div>
+</div>
+
+<script>
+  // Modal
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    return false;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Tabs
+  function showCase(sector) {
+    document.querySelectorAll('.cases-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('case-' + sector).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Live widget animation
+  const questions = [
+    { q: "¿El proyecto Edificio Centro superará el presupuesto aprobado este trimestre?", p: 72 },
+    { q: "¿Esta categoría de bebidas alcanzará la meta de ventas en Q3?", p: 45 },
+    { q: "¿El Banrep mantendrá la tasa de interés en la reunión de octubre?", p: 81 },
+    { q: "¿El proveedor principal entregará a tiempo para temporada de fin de año?", p: 34 },
+    { q: "¿El nuevo producto llegará al punto de equilibrio en los primeros 6 meses?", p: 58 },
+  ];
+
+  let currentQ = 0;
+
+  function rotateWidget() {
+    currentQ = (currentQ + 1) % questions.length;
+    const { q, p } = questions[currentQ];
+
+    const probEl = document.getElementById('widget-prob');
+    const barEl = document.getElementById('widget-bar');
+    const questionEl = document.getElementById('widget-question');
+
+    questionEl.style.opacity = '0';
+    probEl.style.opacity = '0';
+
+    setTimeout(() => {
+      questionEl.textContent = q;
+      probEl.textContent = p + '%';
+      barEl.style.width = p + '%';
+
+      questionEl.style.transition = 'opacity 0.5s';
+      probEl.style.transition = 'opacity 0.5s';
+      questionEl.style.opacity = '1';
+      probEl.style.opacity = '1';
+
+      // Color change based on probability
+      if (p >= 65) {
+        probEl.style.color = '#E74C3C';
+      } else if (p >= 45) {
+        probEl.style.color = '#F5A623';
+      } else {
+        probEl.style.color = '#2ECC71';
+      }
+    }, 400);
+  }
+
+  setInterval(rotateWidget, 4000);
+</script>
+</body>
+</html>
